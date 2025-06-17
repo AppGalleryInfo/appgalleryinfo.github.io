@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppGallery 统计数据</title>
+  <!-- <link rel="stylesheet" href="src/styles.css"> -->
+  <style>
+    .statistics-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .statistics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .statistics-date {
+      font-size: 1.2rem;
+      color: #666;
+    }
+    
+    .statistics-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .statistics-card {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: transform 0.3s ease;
+    }
+    
+    .statistics-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .statistics-card h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .statistics-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+    
+    .statistics-card .sub-value {
+      display: flex;
+      justify-content: space-between;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .statistics-section {
+      margin-bottom: 30px;
+    }
+    
+    .statistics-section h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.5rem;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+    
+    .category-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+    
+    .category-sub-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .category-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: transform 0.3s ease;
+    }
+    
+    .category-name {
+      font-weight: bold;
+      text-align: left;
+    }
+    
+    .category-count {
+      background-color: #007bff;
+      color: white;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+    }
+    
+    .app-type {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+      text-align: left;
+    }
+
+    .category-item:hover {
+      transform: translateY(-5px);
+    }
+    
+    .update-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .delta-list {
+      margin-top: 20px;
+    }
+    
+    .delta-list table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .delta-list th, .delta-list td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .delta-list th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+    
+    .delta-list tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .delta-value {
+      font-weight: bold;
+      color: #28a745;
+    }
+    
+    .tab-container {
+      margin-bottom: 20px;
+    }
+    
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .tab-button {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #666;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .chart-container {
+      height: 300px;
+      margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+      .statistics-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .update-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .category-list {
+        grid-template-columns: 1fr;
+      }
+
+      .category-sub-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="statistics-container">
+    <div class="statistics-header">
+      <h1>AppGallery 统计数据</h1>
+      <div class="statistics-date" id="statisticsDate">统计日期: 加载中...</div>
+    </div>
+    
+    <div class="statistics-cards">
+      <div class="statistics-card">
+        <h3>应用/游戏总数</h3>
+        <div class="value" id="totalCount">0</div>
+        <div class="sub-value">
+          <span>应用: <span id="appCount">0</span></span>
+          <span>游戏: <span id="gameCount">0</span></span>
+        </div>
+      </div>
+      
+      <div class="statistics-card">
+        <h3>昨日更新</h3>
+        <div class="value" id="yesterdayUpdateCount">0</div>
+        <div class="sub-value">
+          <span>应用: <span id="yesterdayAppCount">0</span></span>
+          <span>游戏: <span id="yesterdayGameCount">0</span></span>
+        </div>
+      </div>
+      
+      <div class="statistics-card">
+        <h3>近7天更新</h3>
+        <div class="value" id="last7DaysCount">0</div>
+        <div class="sub-value">
+          <span>应用: <span id="last7DaysAppCount">0</span></span>
+          <span>游戏: <span id="last7DaysGameCount">0</span></span>
+        </div>
+      </div>
+      
+      <div class="statistics-card">
+        <h3>近30天更新</h3>
+        <div class="value" id="last30DaysCount">0</div>
+        <div class="sub-value">
+          <span>应用: <span id="last30DaysAppCount">0</span></span>
+          <span>游戏: <span id="last30DaysGameCount">0</span></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tab-container">
+      <div class="tab-buttons">
+        <button class="tab-button active" data-tab="categories">分类统计</button>
+        <button class="tab-button" data-tab="updates">更新统计</button>
+        <button class="tab-button" data-tab="downloads">下载量增长</button>
+        <button class="tab-button" data-tab="growth-ranges">增长量范围</button>
+      </div>
+      
+      <div class="tab-content active" id="categories">
+        <div class="statistics-section">
+          <h2>分类统计</h2>
+          <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+          </div>
+          <div class="category-list">
+            <h3>应用</h3>
+            <div id="appList" class="category-sub-list"></div>
+            <h3>游戏</h3>
+            <div id="gameList" class="category-sub-list"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="updates">
+        <div class="statistics-section">
+          <h2>更新统计</h2>
+          <div class="chart-container">
+            <canvas id="updateChart"></canvas>
+          </div>
+          <div class="update-stats">
+            <div class="statistics-card">
+              <h3>超过2个月未更新</h3>
+              <div class="value" id="twoMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="twoMonthsAppCount">0</span></span>
+                <span>游戏: <span id="twoMonthsGameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>超过3个月未更新</h3>
+              <div class="value" id="threeMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="threeMonthsAppCount">0</span></span>
+                <span>游戏: <span id="threeMonthsGameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>超过4个月未更新</h3>
+              <div class="value" id="fourMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="fourMonthsAppCount">0</span></span>
+                <span>游戏: <span id="fourMonthsGameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>超过5个月未更新</h3>
+              <div class="value" id="fiveMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="fiveMonthsAppCount">0</span></span>
+                <span>游戏: <span id="fiveMonthsGameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>超过6个月未更新</h3>
+              <div class="value" id="sixMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="sixMonthsAppCount">0</span></span>
+                <span>游戏: <span id="sixMonthsGameCount">0</span></span>
+              </div>
+            </div>
+
+            <div class="statistics-card">
+              <h3>超过9个月未更新</h3>
+              <div class="value" id="nineMonthsCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="nineMonthsAppCount">0</span></span>
+                <span>游戏: <span id="nineMonthsGameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>超过1年未更新</h3>
+              <div class="value" id="oneYearCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="oneYearAppCount">0</span></span>
+                <span>游戏: <span id="oneYearGameCount">0</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="downloads">
+        <div class="statistics-section">
+          <h2>下载量增长排行</h2>
+          <div class="chart-container">
+            <canvas id="downloadChart"></canvas>
+          </div>
+          <div class="delta-list">
+            <table>
+              <thead>
+                <tr>
+                  <th>排名</th>
+                  <th>应用名称</th>
+                  <th>分类</th>
+                  <th>类型</th>
+                  <th>当前下载量</th>
+                  <th>增长量</th>
+                </tr>
+              </thead>
+              <tbody id="deltaList">
+                <!-- 下载量增长列表将通过JavaScript动态生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <div class="tab-content" id="growth-ranges">
+        <div class="statistics-section">
+          <h2>增长量范围统计</h2>
+          <div class="chart-container">
+            <canvas id="growthRangeChart"></canvas>
+          </div>
+          <div class="update-stats">
+            <div class="statistics-card">
+              <h3>增长量为0</h3>
+              <div class="value" id="range0Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range0AppCount">0</span></span>
+                <span>游戏: <span id="range0GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量1-100</h3>
+              <div class="value" id="range1_100Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range1_100AppCount">0</span></span>
+                <span>游戏: <span id="range1_100GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量101-200</h3>
+              <div class="value" id="range101_200Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range101_200AppCount">0</span></span>
+                <span>游戏: <span id="range101_200GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量201-500</h3>
+              <div class="value" id="range201_500Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range201_500AppCount">0</span></span>
+                <span>游戏: <span id="range201_500GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量501-1000</h3>
+              <div class="value" id="range501_1000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range501_1000AppCount">0</span></span>
+                <span>游戏: <span id="range501_1000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量1001-2000</h3>
+              <div class="value" id="range1001_2000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range1001_2000AppCount">0</span></span>
+                <span>游戏: <span id="range1001_2000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量2001-5000</h3>
+              <div class="value" id="range2001_5000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range2001_5000AppCount">0</span></span>
+                <span>游戏: <span id="range2001_5000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量5001-10000</h3>
+              <div class="value" id="range5001_10000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range5001_10000AppCount">0</span></span>
+                <span>游戏: <span id="range5001_10000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量10001-20000</h3>
+              <div class="value" id="range10001_20000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range10001_20000AppCount">0</span></span>
+                <span>游戏: <span id="range10001_20000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量20001-50000</h3>
+              <div class="value" id="range20001_50000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range20001_50000AppCount">0</span></span>
+                <span>游戏: <span id="range20001_50000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量50001-100000</h3>
+              <div class="value" id="range50001_100000Count">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range50001_100000AppCount">0</span></span>
+                <span>游戏: <span id="range50001_100000GameCount">0</span></span>
+              </div>
+            </div>
+            
+            <div class="statistics-card">
+              <h3>增长量100000以上</h3>
+              <div class="value" id="range100000_plusCount">0</div>
+              <div class="sub-value">
+                <span>应用: <span id="range100000_plusAppCount">0</span></span>
+                <span>游戏: <span id="range100000_plusGameCount">0</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="src/chart.js"></script>
+  <script>
+    // 加载统计数据
+    async function loadStatistics() {
+      try {
+        const response = await fetch('data/statistics/statistics_no_list.json');
+        const data = await response.json();
+        renderStatistics(data);
+      } catch (error) {
+        console.error('加载统计数据失败:', error);
+        document.querySelector('.statistics-container').innerHTML = `
+          <div style="text-align: center; padding: 50px;">
+            <h2>加载统计数据失败</h2>
+            <p>请确保已生成统计数据文件。</p>
+            <p>错误信息: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+    
+    // 渲染统计数据
+    function renderStatistics(data) {
+      // 更新统计日期
+      document.getElementById('statisticsDate').textContent = `统计日期: ${data.date}`;
+      
+      // 更新总数统计
+      document.getElementById('totalCount').textContent = data.totalCount.total;
+      document.getElementById('appCount').textContent = data.totalCount.apps;
+      document.getElementById('gameCount').textContent = data.totalCount.games;
+      
+      // 更新昨日更新统计
+      const yesterdayTotal = data.updatedYesterday.apps + data.updatedYesterday.games;
+      document.getElementById('yesterdayUpdateCount').textContent = yesterdayTotal;
+      document.getElementById('yesterdayAppCount').textContent = data.updatedYesterday.apps;
+      document.getElementById('yesterdayGameCount').textContent = data.updatedYesterday.games;
+      
+      // 更新近7天更新统计
+      const last7DaysTotal = data.updatedLast7Days.apps + data.updatedLast7Days.games;
+      document.getElementById('last7DaysCount').textContent = last7DaysTotal;
+      document.getElementById('last7DaysAppCount').textContent = data.updatedLast7Days.apps;
+      document.getElementById('last7DaysGameCount').textContent = data.updatedLast7Days.games;
+      
+      // 更新近30天更新统计
+      const last30DaysTotal = data.updatedLast30Days.apps + data.updatedLast30Days.games;
+      document.getElementById('last30DaysCount').textContent = last30DaysTotal;
+      document.getElementById('last30DaysAppCount').textContent = data.updatedLast30Days.apps;
+      document.getElementById('last30DaysGameCount').textContent = data.updatedLast30Days.games;
+      
+      // 更新未更新统计
+      // 2个月未更新
+      const twoMonthsTotal = data.notUpdatedTwoMonths.apps + data.notUpdatedTwoMonths.games;
+      document.getElementById('twoMonthsCount').textContent = twoMonthsTotal;
+      document.getElementById('twoMonthsAppCount').textContent = data.notUpdatedTwoMonths.apps;
+      document.getElementById('twoMonthsGameCount').textContent = data.notUpdatedTwoMonths.games;
+      
+      // 3个月未更新
+      const threeMonthsTotal = data.notUpdatedThreeMonths.apps + data.notUpdatedThreeMonths.games;
+      document.getElementById('threeMonthsCount').textContent = threeMonthsTotal;
+      document.getElementById('threeMonthsAppCount').textContent = data.notUpdatedThreeMonths.apps;
+      document.getElementById('threeMonthsGameCount').textContent = data.notUpdatedThreeMonths.games;
+      
+      // 4个月未更新
+      const fourMonthsTotal = data.notUpdatedFourMonths.apps + data.notUpdatedFourMonths.games;
+      document.getElementById('fourMonthsCount').textContent = fourMonthsTotal;
+      document.getElementById('fourMonthsAppCount').textContent = data.notUpdatedFourMonths.apps;
+      document.getElementById('fourMonthsGameCount').textContent = data.notUpdatedFourMonths.games;
+      
+      // 5个月未更新
+      const fiveMonthsTotal = data.notUpdatedFiveMonths.apps + data.notUpdatedFiveMonths.games;
+      document.getElementById('fiveMonthsCount').textContent = fiveMonthsTotal;
+      document.getElementById('fiveMonthsAppCount').textContent = data.notUpdatedFiveMonths.apps;
+      document.getElementById('fiveMonthsGameCount').textContent = data.notUpdatedFiveMonths.games;
+      
+      // 6个月未更新
+      const sixMonthsTotal = data.notUpdatedSixMonths.apps + data.notUpdatedSixMonths.games;
+      document.getElementById('sixMonthsCount').textContent = sixMonthsTotal;
+      document.getElementById('sixMonthsAppCount').textContent = data.notUpdatedSixMonths.apps;
+      document.getElementById('sixMonthsGameCount').textContent = data.notUpdatedSixMonths.games;
+
+      // 9个月未更新
+      const nineMonthsTotal = data.notUpdatedNineMonths.apps + data.notUpdatedNineMonths.games;
+      document.getElementById('nineMonthsCount').textContent = nineMonthsTotal;
+      document.getElementById('nineMonthsAppCount').textContent = data.notUpdatedNineMonths.apps;
+      document.getElementById('nineMonthsGameCount').textContent = data.notUpdatedNineMonths.games;
+      
+      // 1年未更新
+      const oneYearTotal = data.notUpdatedOneYear.apps + data.notUpdatedOneYear.games;
+      document.getElementById('oneYearCount').textContent = oneYearTotal;
+      document.getElementById('oneYearAppCount').textContent = data.notUpdatedOneYear.apps;
+      document.getElementById('oneYearGameCount').textContent = data.notUpdatedOneYear.games;
+      
+      // 更新增长量范围统计
+      if (data.growthRanges) {
+        // 增长量为0
+        const range0Total = data.growthRanges.range0.apps + data.growthRanges.range0.games;
+        document.getElementById('range0Count').textContent = range0Total;
+        document.getElementById('range0AppCount').textContent = data.growthRanges.range0.apps;
+        document.getElementById('range0GameCount').textContent = data.growthRanges.range0.games;
+        
+        // 增长量1-100
+        const range1_100Total = data.growthRanges.range1_100.apps + data.growthRanges.range1_100.games;
+        document.getElementById('range1_100Count').textContent = range1_100Total;
+        document.getElementById('range1_100AppCount').textContent = data.growthRanges.range1_100.apps;
+        document.getElementById('range1_100GameCount').textContent = data.growthRanges.range1_100.games;
+        
+        // 增长量101-200
+        const range101_200Total = data.growthRanges.range101_200.apps + data.growthRanges.range101_200.games;
+        document.getElementById('range101_200Count').textContent = range101_200Total;
+        document.getElementById('range101_200AppCount').textContent = data.growthRanges.range101_200.apps;
+        document.getElementById('range101_200GameCount').textContent = data.growthRanges.range101_200.games;
+        
+        // 增长量201-500
+        const range201_500Total = data.growthRanges.range201_500.apps + data.growthRanges.range201_500.games;
+        document.getElementById('range201_500Count').textContent = range201_500Total;
+        document.getElementById('range201_500AppCount').textContent = data.growthRanges.range201_500.apps;
+        document.getElementById('range201_500GameCount').textContent = data.growthRanges.range201_500.games;
+        
+        // 增长量501-1000
+        const range501_1000Total = data.growthRanges.range501_1000.apps + data.growthRanges.range501_1000.games;
+        document.getElementById('range501_1000Count').textContent = range501_1000Total;
+        document.getElementById('range501_1000AppCount').textContent = data.growthRanges.range501_1000.apps;
+        document.getElementById('range501_1000GameCount').textContent = data.growthRanges.range501_1000.games;
+        
+        // 增长量1001-2000
+        const range1001_2000Total = data.growthRanges.range1001_2000.apps + data.growthRanges.range1001_2000.games;
+        document.getElementById('range1001_2000Count').textContent = range1001_2000Total;
+        document.getElementById('range1001_2000AppCount').textContent = data.growthRanges.range1001_2000.apps;
+        document.getElementById('range1001_2000GameCount').textContent = data.growthRanges.range1001_2000.games;
+        
+        // 增长量2001-5000
+        const range2001_5000Total = data.growthRanges.range2001_5000.apps + data.growthRanges.range2001_5000.games;
+        document.getElementById('range2001_5000Count').textContent = range2001_5000Total;
+        document.getElementById('range2001_5000AppCount').textContent = data.growthRanges.range2001_5000.apps;
+        document.getElementById('range2001_5000GameCount').textContent = data.growthRanges.range2001_5000.games;
+        
+        // 增长量5001-10000
+        const range5001_10000Total = data.growthRanges.range5001_10000.apps + data.growthRanges.range5001_10000.games;
+        document.getElementById('range5001_10000Count').textContent = range5001_10000Total;
+        document.getElementById('range5001_10000AppCount').textContent = data.growthRanges.range5001_10000.apps;
+        document.getElementById('range5001_10000GameCount').textContent = data.growthRanges.range5001_10000.games;
+        
+        // 增长量10001-20000
+        const range10001_20000Total = data.growthRanges.range10001_20000.apps + data.growthRanges.range10001_20000.games;
+        document.getElementById('range10001_20000Count').textContent = range10001_20000Total;
+        document.getElementById('range10001_20000AppCount').textContent = data.growthRanges.range10001_20000.apps;
+        document.getElementById('range10001_20000GameCount').textContent = data.growthRanges.range10001_20000.games;
+        
+        // 增长量20001-50000
+        const range20001_50000Total = data.growthRanges.range20001_50000.apps + data.growthRanges.range20001_50000.games;
+        document.getElementById('range20001_50000Count').textContent = range20001_50000Total;
+        document.getElementById('range20001_50000AppCount').textContent = data.growthRanges.range20001_50000.apps;
+        document.getElementById('range20001_50000GameCount').textContent = data.growthRanges.range20001_50000.games;
+        
+        // 增长量50001-100000
+        const range50001_100000Total = data.growthRanges.range50001_100000.apps + data.growthRanges.range50001_100000.games;
+        document.getElementById('range50001_100000Count').textContent = range50001_100000Total;
+        document.getElementById('range50001_100000AppCount').textContent = data.growthRanges.range50001_100000.apps;
+        document.getElementById('range50001_100000GameCount').textContent = data.growthRanges.range50001_100000.games;
+        
+        // 增长量100000以上
+        const range100000_plusTotal = data.growthRanges.range100000_plus.apps + data.growthRanges.range100000_plus.games;
+        document.getElementById('range100000_plusCount').textContent = range100000_plusTotal;
+        document.getElementById('range100000_plusAppCount').textContent = data.growthRanges.range100000_plus.apps;
+        document.getElementById('range100000_plusGameCount').textContent = data.growthRanges.range100000_plus.games;
+        
+        // 渲染增长量范围图表
+        renderGrowthRangeChart(data.growthRanges);
+      }
+      
+      // 渲染分类列表
+      renderCategoryList(data.categories);
+      
+      // 渲染下载量增长列表
+      renderDeltaList(data.downCountDelta);
+      
+      // 渲染图表
+      renderCategoryChart(data.categories);
+      renderUpdateChart(data);
+      renderDownloadChart(data.downCountDelta.slice(0, 10));
+    }
+    
+    // 渲染分类列表
+    function renderCategoryList(categories) {
+      const appList = document.getElementById('appList');
+      const gameList = document.getElementById('gameList');
+      appList.innerHTML = '';
+      gameList.innerHTML = '';
+      
+      categories.forEach(category => {
+        const categoryItem = document.createElement('div');
+        categoryItem.className = 'category-item';
+        categoryItem.innerHTML = `
+          <div>
+            <div class="category-name">${category.name}</div>
+            <div class="app-type">${category.type}</div>
+          </div>
+          <div class="category-count">${category.count}</div>
+        `;
+        if (category.type === '应用') {
+          appList.appendChild(categoryItem);
+        } else if (category.type === '游戏') {
+          gameList.appendChild(categoryItem);
+        }
+      });
+    }
+    
+    // 渲染下载量增长列表
+    function renderDeltaList(deltaList) {
+      const deltaListElement = document.getElementById('deltaList');
+      deltaListElement.innerHTML = '';
+      
+      deltaList.slice(0, 100).forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.name}</td>
+          <td>${item.category}</td>
+          <td>${item.type}</td>
+          <td>${formatNumber(item.currentDownCount)}</td>
+          <td class="delta-value">+${formatNumber(item.delta)}</td>
+        `;
+        deltaListElement.appendChild(row);
+      });
+    }
+    
+    // 渲染分类图表
+    function renderCategoryChart(categories) {
+      const ctx = document.getElementById('categoryChart').getContext('2d');
+      
+      // 按数量排序并取前15个分类
+      const sortedCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 15);
+      
+      const appCategories = sortedCategories.filter(cat => cat.type === '应用');
+      const gameCategories = sortedCategories.filter(cat => cat.type === '游戏');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedCategories.map(cat => cat.name),
+          datasets: [
+            {
+              label: '应用数量',
+              data: sortedCategories.map(cat => cat.type === '应用' ? cat.count : 0),
+              backgroundColor: 'rgba(54, 162, 235, 0.7)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            },
+            {
+              label: '游戏数量',
+              data: sortedCategories.map(cat => cat.type === '游戏' ? cat.count : 0),
+              backgroundColor: 'rgba(255, 99, 132, 0.7)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+    
+    // 渲染更新统计图表
+    function renderUpdateChart(data) {
+      const ctx = document.getElementById('updateChart').getContext('2d');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['昨日更新', '近7天更新', '近30天更新', '2个月未更新', '3个月未更新', '4个月未更新', '5个月未更新', '6个月未更新', '9个月未更新', '1年未更新'],
+          datasets: [
+            {
+              label: '应用',
+              data: [
+                data.updatedYesterday.apps,
+                data.updatedLast7Days.apps,
+                data.updatedLast30Days.apps,
+                data.notUpdatedTwoMonths.apps,
+                data.notUpdatedThreeMonths.apps,
+                data.notUpdatedFourMonths.apps,
+                data.notUpdatedFiveMonths.apps,
+                data.notUpdatedSixMonths.apps,
+                data.notUpdatedNineMonths.apps,
+                data.notUpdatedOneYear.apps
+              ],
+              backgroundColor: 'rgba(54, 162, 235, 0.7)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            },
+            {
+              label: '游戏',
+              data: [
+                data.updatedYesterday.games,
+                data.updatedLast7Days.games,
+                data.updatedLast30Days.games,
+                data.notUpdatedTwoMonths.games,
+                data.notUpdatedThreeMonths.games,
+                data.notUpdatedFourMonths.games,
+                data.notUpdatedFiveMonths.games,
+                data.notUpdatedSixMonths.games,
+                data.notUpdatedNineMonths.games,
+                data.notUpdatedOneYear.games
+              ],
+              backgroundColor: 'rgba(255, 99, 132, 0.7)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+    
+    // 渲染下载量增长图表
+    function renderDownloadChart(topDeltaList) {
+      const ctx = document.getElementById('downloadChart').getContext('2d');
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topDeltaList.map(item => item.name),
+          datasets: [{
+            label: '下载量增长',
+            data: topDeltaList.map(item => item.delta),
+            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+    
+    // 渲染增长量范围图表
+    function renderGrowthRangeChart(data) {
+      const ctx = document.getElementById('growthRangeChart').getContext('2d');
+      
+      // 定义标签和数据
+      const labels = [
+        '0', '1-100', '101-200', '201-500', '501-1000', 
+        '1001-2000', '2001-5000', '5001-10000', '10001-20000', 
+        '20001-50000', '50001-100000', '100000以上'
+      ];
+      
+      // 提取应用和游戏数据
+      const appValues = [
+        data.range0.apps,
+        data.range1_100.apps,
+        data.range101_200.apps,
+        data.range201_500.apps,
+        data.range501_1000.apps,
+        data.range1001_2000.apps,
+        data.range2001_5000.apps,
+        data.range5001_10000.apps,
+        data.range10001_20000.apps,
+        data.range20001_50000.apps,
+        data.range50001_100000.apps,
+        data.range100000_plus.apps
+      ];
+      
+      const gameValues = [
+        data.range0.games,
+        data.range1_100.games,
+        data.range101_200.games,
+        data.range201_500.games,
+        data.range501_1000.games,
+        data.range1001_2000.games,
+        data.range2001_5000.games,
+        data.range5001_10000.games,
+        data.range10001_20000.games,
+        data.range20001_50000.games,
+        data.range50001_100000.games,
+        data.range100000_plus.games
+      ];
+      
+      // 创建图表
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '应用',
+              data: appValues,
+              backgroundColor: 'rgba(54, 162, 235, 0.5)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            },
+            {
+              label: '游戏',
+              data: gameValues,
+              backgroundColor: 'rgba(255, 99, 132, 0.5)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '增长量范围'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: '应用数量'
+              }
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: '不同增长量范围的应用和游戏数量',
+              font: {
+                size: 16
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // 格式化数字（添加千位分隔符）
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    // 标签切换功能
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', () => {
+        // 移除所有活动状态
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        
+        // 添加活动状态到当前标签
+        button.classList.add('active');
+        const tabId = button.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // 页面加载时加载统计数据
+    document.addEventListener('DOMContentLoaded', loadStatistics);
+  </script>
+</body>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9059S9TE99"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9059S9TE99');
+</script>
+</html>
