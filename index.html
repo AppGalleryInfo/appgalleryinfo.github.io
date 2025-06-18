@@ -50,6 +50,9 @@
       margin-bottom: 15px;
       border-bottom: 1px solid #eee;
       padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
     .statistics-card .value {
@@ -77,6 +80,9 @@
       font-size: 1.5rem;
       border-bottom: 2px solid #007bff;
       padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
     .category-list {
@@ -200,6 +206,58 @@
       margin-bottom: 30px;
     }
     
+    /* 添加圈感叹号样式 */
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #007bff;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: help;
+      margin-left: 5px;
+      position: relative;
+    }
+    
+    .info-icon:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .tooltip {
+      visibility: hidden;
+      position: absolute;
+      bottom: 125%;
+      right: -10px;
+      width: 200px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 1.4;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      right: 15px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+    
     @media (max-width: 768px) {
       .statistics-cards {
         grid-template-columns: 1fr;
@@ -216,6 +274,11 @@
       .category-sub-list {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       }
+      
+      .tooltip {
+        width: 150px;
+        right: -50px;
+      }
     }
   </style>
 </head>
@@ -226,9 +289,13 @@
       <div class="statistics-date" id="statisticsDate">统计日期: 加载中...</div>
     </div>
     
-    <div class="statistics-cards">
+    <div class="statistics-cards">    
       <div class="statistics-card">
-        <h3>应用/游戏总数</h3>
+        <h3>应用/游戏总数
+          <span class="info-icon">!
+            <span class="tooltip">统计范围：所有已收录的应用和游戏总数</span>
+          </span>
+        </h3>
         <div class="value" id="totalCount">0</div>
         <div class="sub-value">
           <span>应用: <span id="appCount">0</span></span>
@@ -237,7 +304,11 @@
       </div>
       
       <div class="statistics-card">
-        <h3>昨日更新</h3>
+        <h3>昨日更新
+          <span class="info-icon">!
+            <span class="tooltip">统计范围：前一天（24小时内）更新的应用和游戏数量</span>
+          </span>
+        </h3>
         <div class="value" id="yesterdayUpdateCount">0</div>
         <div class="sub-value">
           <span>应用: <span id="yesterdayAppCount">0</span></span>
@@ -246,7 +317,11 @@
       </div>
       
       <div class="statistics-card">
-        <h3>近7天更新</h3>
+        <h3>近7天更新
+          <span class="info-icon">!
+            <span class="tooltip">统计范围：最近7天内更新的应用和游戏数量</span>
+          </span>
+        </h3>
         <div class="value" id="last7DaysCount">0</div>
         <div class="sub-value">
           <span>应用: <span id="last7DaysAppCount">0</span></span>
@@ -255,7 +330,11 @@
       </div>
       
       <div class="statistics-card">
-        <h3>近30天更新</h3>
+        <h3>近30天更新
+          <span class="info-icon">!
+            <span class="tooltip">统计范围：最近30天内更新的应用和游戏数量</span>
+          </span>
+        </h3>
         <div class="value" id="last30DaysCount">0</div>
         <div class="sub-value">
           <span>应用: <span id="last30DaysAppCount">0</span></span>
@@ -274,7 +353,12 @@
       
       <div class="tab-content active" id="categories">
         <div class="statistics-section">
-          <h2>分类统计</h2>
+          <h2>
+            分类统计
+            <span class="info-icon">!
+              <span class="tooltip">统计范围：按应用和游戏分类统计的数量分布</span>
+            </span>
+          </h2>
           <div class="chart-container">
             <canvas id="categoryChart"></canvas>
           </div>
@@ -289,13 +373,23 @@
       
       <div class="tab-content" id="updates">
         <div class="statistics-section">
-          <h2>更新统计</h2>
+          <h2>
+            更新统计
+            <span class="info-icon">!
+              <span class="tooltip">统计范围：按最后更新时间统计的应用和游戏数量分布</span>
+            </span>
+          </h2>
           <div class="chart-container">
             <canvas id="updateChart"></canvas>
           </div>
           <div class="update-stats">
             <div class="statistics-card">
-              <h3>超过2个月未更新</h3>
+              <h3>
+                超过2个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在2-3个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="twoMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="twoMonthsAppCount">0</span></span>
@@ -304,7 +398,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>超过3个月未更新</h3>
+              <h3>
+                超过3个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在3-4个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="threeMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="threeMonthsAppCount">0</span></span>
@@ -313,7 +412,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>超过4个月未更新</h3>
+              <h3>
+                超过4个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在4-5个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="fourMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="fourMonthsAppCount">0</span></span>
@@ -322,7 +426,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>超过5个月未更新</h3>
+              <h3>
+                超过5个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在5-6个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="fiveMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="fiveMonthsAppCount">0</span></span>
@@ -331,7 +440,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>超过6个月未更新</h3>
+              <h3>
+                超过6个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在6-9个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="sixMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="sixMonthsAppCount">0</span></span>
@@ -340,7 +454,12 @@
             </div>
 
             <div class="statistics-card">
-              <h3>超过9个月未更新</h3>
+              <h3>
+                超过9个月未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在9-12个月前的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="nineMonthsCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="nineMonthsAppCount">0</span></span>
@@ -349,7 +468,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>超过1年未更新</h3>
+              <h3>
+                超过1年未更新
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：最后更新时间在1年以上的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="oneYearCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="oneYearAppCount">0</span></span>
@@ -362,7 +486,12 @@
       
       <div class="tab-content" id="downloads">
         <div class="statistics-section">
-          <h2>下载量增长排行</h2>
+          <h2>
+            下载量增长排行
+            <span class="info-icon">!
+              <span class="tooltip">统计范围：与前一天相比下载量增长最多的应用和游戏排行</span>
+            </span>
+          </h2>
           <div class="chart-container">
             <canvas id="downloadChart"></canvas>
           </div>
@@ -388,13 +517,23 @@
       
       <div class="tab-content" id="growth-ranges">
         <div class="statistics-section">
-          <h2>增长量范围统计</h2>
+          <h2>
+            增长量范围统计
+            <span class="info-icon">!
+              <span class="tooltip">统计范围：按下载量增长范围统计的应用和游戏数量分布</span>
+            </span>
+          </h2>
           <div class="chart-container">
             <canvas id="growthRangeChart"></canvas>
           </div>
           <div class="update-stats">
             <div class="statistics-card">
-              <h3>增长量为0</h3>
+              <h3>
+                增长量为0
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量没有增长的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range0Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range0AppCount">0</span></span>
@@ -403,7 +542,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量1-100</h3>
+              <h3>
+                增长量1-100
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长1-100的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range1_100Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range1_100AppCount">0</span></span>
@@ -412,7 +556,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量101-200</h3>
+              <h3>
+                增长量101-200
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长101-200的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range101_200Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range101_200AppCount">0</span></span>
@@ -421,7 +570,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量201-500</h3>
+              <h3>
+                增长量201-500
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长201-500的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range201_500Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range201_500AppCount">0</span></span>
@@ -430,7 +584,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量501-1000</h3>
+              <h3>
+                增长量501-1000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长501-1000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range501_1000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range501_1000AppCount">0</span></span>
@@ -439,7 +598,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量1001-2000</h3>
+              <h3>
+                增长量1001-2000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长1001-2000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range1001_2000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range1001_2000AppCount">0</span></span>
@@ -448,7 +612,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量2001-5000</h3>
+              <h3>
+                增长量2001-5000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长2001-5000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range2001_5000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range2001_5000AppCount">0</span></span>
@@ -457,7 +626,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量5001-10000</h3>
+              <h3>
+                增长量5001-10000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长5001-10000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range5001_10000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range5001_10000AppCount">0</span></span>
@@ -466,7 +640,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量10001-20000</h3>
+              <h3>
+                增长量10001-20000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长10001-20000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range10001_20000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range10001_20000AppCount">0</span></span>
@@ -475,7 +654,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量20001-50000</h3>
+              <h3>
+                增长量20001-50000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长20001-50000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range20001_50000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range20001_50000AppCount">0</span></span>
@@ -484,7 +668,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量50001-100000</h3>
+              <h3>
+                增长量50001-100000
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长50001-100000的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range50001_100000Count">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range50001_100000AppCount">0</span></span>
@@ -493,7 +682,12 @@
             </div>
             
             <div class="statistics-card">
-              <h3>增长量100000以上</h3>
+              <h3>
+                增长量100000以上
+                <span class="info-icon">!
+                  <span class="tooltip">统计范围：与前一天相比下载量增长100000以上的应用和游戏数量</span>
+                </span>
+              </h3>
               <div class="value" id="range100000_plusCount">0</div>
               <div class="sub-value">
                 <span>应用: <span id="range100000_plusAppCount">0</span></span>
