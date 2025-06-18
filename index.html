@@ -1187,4 +1187,126 @@
 
   gtag('config', 'G-9059S9TE99');
 </script>
+
+<!-- 添加弹窗样式 -->
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .modal-content {
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: #555;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .modal-button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .modal-button.primary {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .modal-button.primary:hover {
+    background-color: #0069d9;
+  }
+  
+  .modal-button.secondary {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+  
+  .modal-button.secondary:hover {
+    background-color: #e2e6ea;
+  }
+</style>
+
+<!-- 添加弹窗显示逻辑 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 创建弹窗元素
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    
+    const modalTitle = document.createElement('div');
+    modalTitle.className = 'modal-title';
+    modalTitle.textContent = '关于 AppGallery 数据的提示';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    modalContent.innerHTML = '本网站所统计的应用数据并非涵盖 AppGallery 中的全部应用数据，仅为部分应用数据。<br><br>数据更新频率：统计数据每天更新一次，反映前一天的数据变化情况。<br><br>当您查看相关数据时，请务必留意该数据所对应的提示信息。这些提示信息将为您提供关于数据来源、统计范围、统计方式等关键信息，有助于您更准确、全面地理解和使用相关数据。';
+    
+    const modalButtons = document.createElement('div');
+    modalButtons.className = 'modal-buttons';
+    
+    const confirmButton = document.createElement('button');
+    confirmButton.className = 'modal-button primary';
+    confirmButton.textContent = '确认';
+    confirmButton.addEventListener('click', function() {
+      document.body.removeChild(modalOverlay);
+    });
+    
+    const cancelButton = document.createElement('button');
+    cancelButton.className = 'modal-button secondary';
+    cancelButton.textContent = '不同意';
+    cancelButton.addEventListener('click', function() {
+      window.close();
+    });
+    
+    // 组装弹窗
+    modalButtons.appendChild(cancelButton);
+    modalButtons.appendChild(confirmButton);
+    
+    modalContainer.appendChild(modalTitle);
+    modalContainer.appendChild(modalContent);
+    modalContainer.appendChild(modalButtons);
+    
+    modalOverlay.appendChild(modalContainer);
+    
+    // 添加到页面
+    document.body.appendChild(modalOverlay);
+  });
+</script>
 </html>
