@@ -722,6 +722,33 @@
     
     // 渲染统计数据
     function renderStatistics(data) {
+      // 更新统计卡片点击跳转
+      const statCardMap = [
+        { id: 'yesterdayUpdateCount', stat: 'updatedYesterday' },
+        { id: 'last7DaysCount', stat: 'updatedLast7Days' },
+        { id: 'last30DaysCount', stat: 'updatedLast30Days' },
+        { id: 'twoMonthsCount', stat: 'notUpdatedTwoMonths' },
+        { id: 'threeMonthsCount', stat: 'notUpdatedThreeMonths' },
+        { id: 'fourMonthsCount', stat: 'notUpdatedFourMonths' },
+        { id: 'fiveMonthsCount', stat: 'notUpdatedFiveMonths' },
+        { id: 'sixMonthsCount', stat: 'notUpdatedSixMonths' },
+        { id: 'nineMonthsCount', stat: 'notUpdatedNineMonths' },
+        { id: 'oneYearCount', stat: 'notUpdatedOneYear' }
+      ];
+      statCardMap.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+          // 找到卡片的父级 .statistics-card
+          const card = el.closest('.statistics-card');
+          if (card) {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+              window.location.href = `statlist.html?stat=${item.stat}`;
+            });
+          }
+        }
+      });
+
       // 更新统计日期
       document.getElementById('statisticsDate').textContent = `统计日期: ${data.date}`;
       
@@ -890,6 +917,9 @@
       
       categories.forEach(category => {
         const categoryItem = document.createElement('div');
+        categoryItem.addEventListener('click', () => {
+          window.location.href = `category.html?category=${encodeURIComponent(category.name)}`;
+        });
         categoryItem.className = 'category-item';
         categoryItem.innerHTML = `
           <div>
@@ -1172,6 +1202,34 @@
         const tabId = button.getAttribute('data-tab');
         document.getElementById(tabId).classList.add('active');
       });
+    });
+    
+    // 增长量范围卡片点击跳转
+    const rangeCardMap = [
+      { id: 'range0Count', range: 'range0' },
+      { id: 'range1_100Count', range: 'range1_100' },
+      { id: 'range101_200Count', range: 'range101_200' },
+      { id: 'range201_500Count', range: 'range201_500' },
+      { id: 'range501_1000Count', range: 'range501_1000' },
+      { id: 'range1001_2000Count', range: 'range1001_2000' },
+      { id: 'range2001_5000Count', range: 'range2001_5000' },
+      { id: 'range5001_10000Count', range: 'range5001_10000' },
+      { id: 'range10001_20000Count', range: 'range10001_20000' },
+      { id: 'range20001_50000Count', range: 'range20001_50000' },
+      { id: 'range50001_100000Count', range: 'range50001_100000' },
+      { id: 'range100000_plusCount', range: 'range100000_plus' }
+    ];
+    rangeCardMap.forEach(item => {
+      const el = document.getElementById(item.id);
+      if (el) {
+        const card = el.closest('.statistics-card');
+        if (card) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', () => {
+            window.location.href = `rangelist.html?range=${item.range}`;
+          });
+        }
+      }
     });
     
     // 页面加载时加载统计数据
