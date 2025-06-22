@@ -110,7 +110,9 @@ const rangeMap = {
 
 document.addEventListener('DOMContentLoaded', async () => {
     const range = getQueryParam('range');
-    document.getElementById('rangeTitle').textContent = `增长量范围：${rangeMap[range] || range}`;
+    const rangeTitleText = rangeMap[range] || range;
+    document.getElementById('rangeTitle').textContent = `增长量范围：${rangeTitleText}`;
+    document.title = `AppGallery ${rangeTitleText}增长量统计`;
     try {
         const res = await fetch(`data/statistics/${range}.json`);
         const json = await res.json();
@@ -162,4 +164,4 @@ window.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkAndLoad, 100);
         }
     }, 100);
-}); 
+});

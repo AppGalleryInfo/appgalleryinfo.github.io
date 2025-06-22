@@ -55,9 +55,9 @@ function createAppCard(app, rank, showUpgradeMsg = false) {
                 <span class="stat-value">${formatDate(app.releaseDate)}</span>
             </div>
             ${showUpgradeMsg && app.upgradeMsg ? `
-            <div class="stat-item">
+            <div class="stat-item upgrade-message-container">
                 <span class="stat-label">更新内容</span>
-                <div class="stat-value upgrade-message">${app.upgradeMsg}</div>
+                <span class="stat-value upgrade-message">${app.upgradeMsg}</span>
             </div>
             ` : ''}
         </div>
@@ -190,7 +190,9 @@ const statMap = {
 
 document.addEventListener('DOMContentLoaded', async () => {
     const stat = getQueryParam('stat');
-    document.getElementById('statTitle').textContent = `统计类型：${statMap[stat] || stat}`;
+    const statTitleText = statMap[stat] || stat;
+    document.getElementById('statTitle').textContent = `统计类型：${statTitleText}`;
+    document.title = `AppGallery ${statTitleText}统计`;
     let showUpgradeMsg = stat === 'updatedYesterday';
     try {
         const res = await fetch(`data/statistics/${stat}.json`);
@@ -246,4 +248,4 @@ window.addEventListener('DOMContentLoaded', function() {
             setTimeout(checkAndLoad, 100); // 递归检查直到填满一屏或全部加载
         }
     }, 100);
-}); 
+});
