@@ -158,6 +158,13 @@ let currentPage = 0;
 let isLoading = false;
 let allLoaded = false;
 
+function resetPaging() {
+    currentPage = 0;
+    isLoading = false;
+    allLoaded = false;
+    document.getElementById('appContainer').innerHTML = '';
+}
+
 function renderAppsPage(apps, sortBy, page, showUpgradeMsg = false) {
     const appContainer = document.getElementById('appContainer');
     const comparator = getSortComparator(sortBy);
@@ -189,10 +196,9 @@ const statMap = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    resetPaging(); // 每次进入页面都重置分页
     const stat = getQueryParam('stat');
-    const statTitleText = statMap[stat] || stat;
-    document.getElementById('statTitle').textContent = `统计类型：${statTitleText}`;
-    document.title = `AppGallery ${statTitleText}统计`;
+    document.getElementById('statTitle').textContent = `统计类型：${statMap[stat] || stat}`;
     let showUpgradeMsg = stat === 'updatedYesterday';
     try {
         const res = await fetch(`data/statistics/${stat}.json`);
@@ -200,20 +206,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         appsData = Array.isArray(json.list) ? json.list : [];
         // 首次加载第一页
         renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
-        console.log('statlist.js: Data loaded and rendered successfully.');
     } catch (e) {
-        console.error('statlist.js: Failed to load data', e);
-        document.getElementById('appContainer').innerHTML = '加载数据失败';
+        document.getElementById('appContainer').innerHTML = '加载统计数据失败';
         allLoaded = true;
     }
 
     document.querySelectorAll('.sort-btn[data-sort]').forEach(btn => {
         btn.addEventListener('click', () => {
-            const sortBy = btn.getAttribute('data-sort');
-            currentSort = sortBy;
-            currentPage = 0;
-            allLoaded = false;
-            document.getElementById('appContainer').innerHTML = '';
+            currentSort = btn.getAttribute('data-sort');
+            resetPaging();
+            const stat = getQueryParam('stat');
+            const showUpgradeMsg = stat === 'updatedYesterday';
             renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
         });
     });
@@ -246,8 +249,10 @@ window.addEventListener('DOMContentLoaded', function() {
     setTimeout(function checkAndLoad() {
         if (!allLoaded && (document.body.scrollHeight <= window.innerHeight + 10)) {
             currentPage++;
-            renderAppsPage(appsData, currentSort, currentPage);
-            setTimeout(checkAndLoad, 100); // 递归检查直到填满一屏或全部加载
+            const stat = getQueryParam('stat');
+            const showUpgradeMsg = stat === 'updatedYesterday';
+            renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
+            setTimeout(checkAndLoad, 100);
         }
     }, 100);
 });

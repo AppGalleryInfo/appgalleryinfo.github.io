@@ -77,6 +77,13 @@ let currentPage = 0;
 let isLoading = false;
 let allLoaded = false;
 
+function resetPaging() {
+    currentPage = 0;
+    isLoading = false;
+    allLoaded = false;
+    document.getElementById('appContainer').innerHTML = '';
+}
+
 function renderAppsPage(apps, sortBy, page) {
     const appContainer = document.getElementById('appContainer');
     const comparator = getSortComparator(sortBy);
@@ -109,6 +116,7 @@ const rangeMap = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    resetPaging(); // 每次进入页面都重置分页
     const range = getQueryParam('range');
     const rangeTitleText = rangeMap[range] || range;
     document.getElementById('rangeTitle').textContent = `增长量范围：${rangeTitleText}`;
@@ -128,11 +136,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.querySelectorAll('.sort-btn[data-sort]').forEach(btn => {
         btn.addEventListener('click', () => {
-            const sortBy = btn.getAttribute('data-sort');
-            currentSort = sortBy;
-            currentPage = 0;
-            allLoaded = false;
-            document.getElementById('appContainer').innerHTML = '';
+            currentSort = btn.getAttribute('data-sort');
+            resetPaging();
             renderAppsPage(appsData, currentSort, currentPage);
         });
     });
