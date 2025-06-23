@@ -196,7 +196,7 @@ const statMap = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    resetPaging(); // 每次进入页面都重置分页
+    resetPaging();
     const stat = getQueryParam('stat');
     document.getElementById('statTitle').textContent = `统计类型：${statMap[stat] || stat}`;
     let showUpgradeMsg = stat === 'updatedYesterday';
@@ -206,6 +206,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         appsData = Array.isArray(json.list) ? json.list : [];
         // 首次加载第一页
         renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
+
+        // 只有数据加载完毕后再注册滚动监听和递归检查
+        window.addEventListener('scroll', tryLoadNextPage);
+        document.addEventListener('scroll', tryLoadNextPage);
+        setTimeout(function checkAndLoad() {
+            if (!allLoaded && (document.body.scrollHeight <= window.innerHeight + 10)) {
+                currentPage++;
+                renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
+                setTimeout(checkAndLoad, 100);
+            }
+        }, 100);
     } catch (e) {
         document.getElementById('appContainer').innerHTML = '加载统计数据失败';
         allLoaded = true;
@@ -215,8 +226,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         btn.addEventListener('click', () => {
             currentSort = btn.getAttribute('data-sort');
             resetPaging();
-            const stat = getQueryParam('stat');
-            const showUpgradeMsg = stat === 'updatedYesterday';
             renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
         });
     });
@@ -241,18 +250,3 @@ function tryLoadNextPage() {
         isLoading = false;
     }
 }
-
-window.addEventListener('scroll', tryLoadNextPage);
-document.addEventListener('scroll', tryLoadNextPage);
-// 首次内容不足一屏时自动加载
-window.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function checkAndLoad() {
-        if (!allLoaded && (document.body.scrollHeight <= window.innerHeight + 10)) {
-            currentPage++;
-            const stat = getQueryParam('stat');
-            const showUpgradeMsg = stat === 'updatedYesterday';
-            renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
-            setTimeout(checkAndLoad, 100);
-        }
-    }, 100);
-});

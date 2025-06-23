@@ -116,20 +116,27 @@ const rangeMap = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    resetPaging(); // 每次进入页面都重置分页
+    resetPaging();
     const range = getQueryParam('range');
-    const rangeTitleText = rangeMap[range] || range;
-    document.getElementById('rangeTitle').textContent = `增长量范围：${rangeTitleText}`;
-    document.title = `AppGallery ${rangeTitleText}增长量统计`;
+    document.getElementById('rangeTitle').textContent = `增长量范围：${rangeMap[range] || range}`;
     try {
         const res = await fetch(`data/statistics/${range}.json`);
         const json = await res.json();
         appsData = Array.isArray(json.list) ? json.list : [];
         // 首次加载第一页
         renderAppsPage(appsData, currentSort, currentPage);
-        console.log('rangelist.js: Data loaded and rendered successfully.');
+
+        // 只有数据加载完毕后再注册滚动监听和递归检查
+        window.addEventListener('scroll', tryLoadNextPage);
+        document.addEventListener('scroll', tryLoadNextPage);
+        setTimeout(function checkAndLoad() {
+            if (!allLoaded && (document.body.scrollHeight <= window.innerHeight + 10)) {
+                currentPage++;
+                renderAppsPage(appsData, currentSort, currentPage);
+                setTimeout(checkAndLoad, 100);
+            }
+        }, 100);
     } catch (e) {
-        console.error('rangelist.js: Failed to load data', e);
         document.getElementById('appContainer').innerHTML = '加载数据失败';
         allLoaded = true;
     }
@@ -160,15 +167,3 @@ function tryLoadNextPage() {
         isLoading = false;
     }
 }
-
-window.addEventListener('scroll', tryLoadNextPage);
-document.addEventListener('scroll', tryLoadNextPage);
-window.addEventListener('DOMContentLoaded', function() {
-    setTimeout(function checkAndLoad() {
-        if (!allLoaded && (document.body.scrollHeight <= window.innerHeight + 10)) {
-            currentPage++;
-            renderAppsPage(appsData, currentSort, currentPage);
-            setTimeout(checkAndLoad, 100);
-        }
-    }, 100);
-});
