@@ -200,8 +200,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         appsData = Array.isArray(json.list) ? json.list : [];
         // 首次加载第一页
         renderAppsPage(appsData, currentSort, currentPage, showUpgradeMsg);
+        console.log('statlist.js: Data loaded and rendered successfully.');
     } catch (e) {
-        document.getElementById('appContainer').innerHTML = '加载统计数据失败';
+        console.error('statlist.js: Failed to load data', e);
+        document.getElementById('appContainer').innerHTML = '加载数据失败';
         allLoaded = true;
     }
 
